@@ -5,17 +5,29 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerController))]
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float JumpHeight = 4;
-    [SerializeField] private float TimeToJumpApex = 0.4f;
-    [SerializeField] private float MoveSpeed = 6;
+    /*
+     * Variables controlling jump. Height in meters? and time in 1/10th of seconds?
+     */
+    [SerializeField] private float JumpHeight = 3;
+    [SerializeField] private float TimeToJumpApex = 1;
+    [SerializeField] private float MoveSpeed = 4;
 
-    [SerializeField] private float AccelerationTimeAirborne = 0.2f;
+    /*
+     * Acceleration value for damping movement between current and target
+     * We want the airborne time to be faster than the grounded acceleration damping
+     * for more airborne control
+     */
+    [SerializeField] private float AccelerationTimeAirborne = 0.05f;
     [SerializeField] private float AccelerationTimeGrounded = 0.1f;
     // [SerializeField] private float DecelerationTimeAirborne = 0.2f;
     // [SerializeField] private float DecelerationTimeGrounded = 0.1f;
     //
+    
+    
     private Vector3 _velocity;
     private Vector3 _oldVelocity;
+    
+    // Empty variable used in the Mathf.SmoothDamp of horizontal velocity
     private float _velocityXSmoothing;
  
     private float _gravity => -(2 * JumpHeight) / Mathf.Pow(TimeToJumpApex, 2);
@@ -60,7 +72,7 @@ public class Player : MonoBehaviour
         
         if (!_isGrounded && !_reachedApex)
         {
-            _jumpTimer += Time.fixedDeltaTime;
+            _jumpTimer += Time.deltaTime;
         }
         
         if (!_reachedApex && _maxHeightReached > transform.position.y)
@@ -73,8 +85,8 @@ public class Player : MonoBehaviour
         _maxHeightReached = Mathf.Max(transform.position.y, _maxHeightReached);
 
         _oldVelocity = _velocity;
-        _velocity.y += _gravity * Time.fixedDeltaTime;
-        Vector3 deltaPosition = (_oldVelocity + _velocity) * 0.5f * Time.fixedDeltaTime;
+        _velocity.y += _gravity * Time.deltaTime;
+        Vector3 deltaPosition = (_oldVelocity + _velocity) * 0.5f * Time.deltaTime;
         _controller.Move(deltaPosition);
         
         
